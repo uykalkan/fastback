@@ -1,0 +1,25 @@
+{
+  "name": "fastback",
+  "version": "1.0.0",
+  "description": "sunucu yedekleme ve gerialma scripti",
+  "main": "fastback.sh",
+  "scripts": {
+    "test": "fastback"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uykalkan/fastback.git"
+  },
+  "keywords": [
+    "mysql",
+    "backup",
+    "www",
+    "backup"
+  ],
+  "author": "Ümit Yaşar Kalkan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uykalkan/fastback/issues"
+  },
+  "homepage": "https://github.com/uykalkan/fastback#readme"
+}
