@@ -1,10 +1,10 @@
 {
   "name": "fastback",
-  "version": "1.0.0",
-  "description": "sunucu yedekleme ve gerialma scripti",
+  "version": "1.0.1",
+  "description": "Sunucu yedekleme ve gerialma scripti",
   "main": "fastback.sh",
-  "scripts": {
-    "test": "fastback"
+  "bin": {
+    "paket": "fastback.sh"
   },
   "repository": {
     "type": "git",
@@ -16,8 +16,20 @@
     "www",
     "backup"
   ],
-  "author": "Ümit Yaşar Kalkan",
-  "license": "ISC",
+  "author": "",
+  "author": [
+    {
+      "name" : "Ümit Yaşar Kalkan",
+      "email": "uykalkan@gmail.com",
+      "url" : "https://github.com/uykalkan"
+    }
+    ,{
+      "name": "Ayhan K.",
+      "email": "cobaimelan@protonmail.com",
+      "url": "https://c0b41.github.io"
+    }
+  ],
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/uykalkan/fastback/issues"
   },
