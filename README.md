@@ -7,3 +7,10 @@ Sunucular için hızlıca yedekleme ve geri alma programı
 ![step 3](screenshots/3.png "Screenshots Step3")
 
 # Not: Şu An Geliştirme Aşamasındadır Kullanmayın Takip Edin
+
+# Kurulum
+´´´
+mv -f fastback.sh /usr/local/bin
+alias fastback="fastback.sh"
+chmod +x /usr/local/bin/fastback.sh
+´´´
