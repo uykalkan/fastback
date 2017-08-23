@@ -10,6 +10,8 @@ mysql_query_prefix="" #server
 mkdir $fastbackfolder
 mkdir $fastbackfolder/sql
 mkdir $fastbackfolder/www
+mkdir $fastbackfolder/trash
+mkdir $fastbackfolder/transfer
 
 if !(isfolder "/tmp/fastback");then 
 	mkdir /tmp/fastback
@@ -47,6 +49,7 @@ explode () {
 }
 
 sqlfolder() {
+	folder=()
 	for dir in $(ls $fastbackfolder/sql); do
 		if isfolder "$fastbackfolder/sql/$dir";then 
 			folder+=($dir)
@@ -62,7 +65,7 @@ lsfolder() {
 	# Kullanım Örneği:
 	# for i in $(lsfolder .)
 	# done
-
+	folder=()
 	for dir in $(ls $1); do
 		blocked=false
 		for i in $@; do
@@ -91,6 +94,7 @@ lsfile() {
 	# Kullanım Örneği:
 	# for i in $(lsfile .)
 	# done
+	file=()
 
 	for dir in $(ls $1); do
 		blocked=false
@@ -193,6 +197,10 @@ backup_database() {
 }
 
 restore_database() {
+	if [ ! $(sqlfolder) ]; then
+		say hata "Hiç veritabanı yedeği almamışsınız"
+		break
+	fi
 	clear
 	PS3=$(say soru "Hangi Veritabanı Geri Alınacak?")
 	select folder in $(sqlfolder)
@@ -209,6 +217,8 @@ restore_database() {
 				PS3=$(say soru "$folder veritabanı hangi zamana geri dönsün?")
 				select sqlfile in ${sqlfiles[@]}
 				do
+					mysql -e "DROP DATABASE $folder;"
+					mysql -e "CREATE DATABASE $folder;"
 					mysql $mysql_query_prefix $folder < $fastbackfolder/sql/$folder/$sqlfile.sql
 					ret=$?
 
@@ -264,32 +274,37 @@ backup_www() {
 
 restore_www() {
 	clear
-	echo $(lsfolder "$fastbackfolder/www")
 	PS3=$(say soru "Hangi Site Geri Alınacak?")
 	select folder in $(lsfolder "$fastbackfolder/www")
 	do
 		if [[ $folder ]]; then
 			# SQL Klasöründe bu database'in klasörü yoksa açalım
-			if isfolder "$fastbackfolder/sql/$folder";then 
-
-				for i in $(ls "$fastbackfolder/sql/$folder"); do
-					arr=($(explode "." "$i"))
-					sqlfiles+=(${arr[0]})
-				done
-
-				PS3=$(say soru "$folder veritabanı hangi zamana geri dönsün?")
-				select sqlfile in ${sqlfiles[@]}
+			if isfolder "$fastbackfolder/www/$folder";then 
+				PS3=$(say soru "$folder kullanıcısının www klasörü hangi zamana geri dönsün?")
+				select selected_folder in $(lsfolder "$fastbackfolder/www/$folder/")
 				do
-					mysql $mysql_query_prefix $folder < $fastbackfolder/sql/$folder/$sqlfile.sql
-					ret=$?
 
+					#mkdir $tmpfolder/transfer/$selected_folder
+					rsync -avz $fastbackfolder/www/$folder/$selected_folder $fastbackfolder/transfer/					
+
+					# Var olanı silmeyelim çöpe atalım ileride çöpten geri al yapacağız
+					nowtime=$(now)
+					mkdir $fastbackfolder/trash/$folder
+					mkdir $fastbackfolder/trash/$folder/$nowtime
+					mv /home/$folder/public_html $fastbackfolder/trash/$folder/$nowtime/public_html
+
+					mv $fastbackfolder/transfer/$selected_folder/public_html /home/$folder/public_html
+					rm -rf $fastbackfolder/transfer/*
+					
+					ret=$?
 					if [ "$ret" = "0" ]; then
-					    say "Geri Dönüş Başarılı"
+					    say "Geri Alma Başarılı"
 					    break
 					else
-					    say hata "Geri dönüş başarısız oldu (mysql ile alakalı)"
+					    say hata "Geri Alma başarısız oldu"
 					fi
 
+					echo $selected_folder
 				done
 			else 
 				say hata "Klasör Bulunamadı!"
