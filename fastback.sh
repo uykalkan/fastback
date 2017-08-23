@@ -303,8 +303,6 @@ restore_www() {
 					else
 					    say hata "Geri Alma başarısız oldu"
 					fi
-
-					echo $selected_folder
 				done
 			else 
 				say hata "Klasör Bulunamadı!"
