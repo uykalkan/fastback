@@ -1,6 +1,6 @@
 {
   "name": "fastback",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Sunucu yedekleme ve gerialma scripti",
   "main": "fastback.sh",
   "bin": {
