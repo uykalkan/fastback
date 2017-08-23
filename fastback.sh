@@ -7,6 +7,7 @@ fastbackfolder="/fastback"
 #mysql_query_prefix="-u root -p784512" #local
 mysql_query_prefix="" #server
 
+source variables.txt
 mkdir $fastbackfolder
 mkdir $fastbackfolder/sql
 mkdir $fastbackfolder/www
@@ -134,24 +135,6 @@ clear
 
 # echo ${databases[@]};
 
-export COLOR_NC='\e[0m' # No Color
-export COLOR_WHITE='\e[1;37m'
-export COLOR_BLACK='\e[0;30m'
-export COLOR_BLUE='\e[0;34m'
-export COLOR_LIGHT_BLUE='\e[1;34m'
-export COLOR_GREEN='\e[0;32m'
-export COLOR_LIGHT_GREEN='\e[1;32m'
-export COLOR_CYAN='\e[0;36m'
-export COLOR_LIGHT_CYAN='\e[1;36m'
-export COLOR_RED='\e[0;31m'
-export COLOR_LIGHT_RED='\e[1;31m'
-export COLOR_PURPLE='\e[0;35m'
-export COLOR_LIGHT_PURPLE='\e[1;35m'
-export COLOR_BROWN='\e[0;33m'
-export COLOR_YELLOW='\e[1;33m'
-export COLOR_GRAY='\e[0;30m'
-export COLOR_LIGHT_GRAY='\e[0;37m'
-
 say() {
 	case $1 in
 		"hata")
@@ -168,7 +151,7 @@ say() {
 
 backup_database() {
 	clear
-	PS3=$(say soru "Hangi Veritabanı Yedeklenecek?")
+	PS3=$(say soru "$STR_WHICHDBBACKUP")
 	select opt in ${databases[@]}
 	do
 		if [[ $opt ]]; then
@@ -184,25 +167,25 @@ backup_database() {
 			ret=$?
 			
 			if [ "$ret" = "0" ]; then
-			    say "$filename Yedekleme işlemi tamamlandı"
+			    say "$filename $STR_BACKUPSUCCESS"
 			    break
 			else
-			    say hata "$filename Yedekleme başarısız!"
+			    say hata "$filename $STR_BACKUPFAIL"
 			fi
 
 		else
-			say hata "İyi oku rakamları!"
+			say hata "$STR_INVALIDSELECTION"
 		fi
 	done	
 }
 
 restore_database() {
 	if [ ! $(sqlfolder) ]; then
-		say hata "Hiç veritabanı yedeği almamışsınız"
+		say hata "$STR_NOBACKUPFOUNDDB"
 		break
 	fi
 	clear
-	PS3=$(say soru "Hangi Veritabanı Geri Alınacak?")
+	PS3=$(say soru "$STR_WHICHDBRESTORE")
 	select folder in $(sqlfolder)
 	do
 		if [[ $folder ]]; then
@@ -214,7 +197,7 @@ restore_database() {
 					sqlfiles+=(${arr[0]})
 				done
 
-				PS3=$(say soru "$folder veritabanı hangi zamana geri dönsün?")
+				PS3=$(say soru "$STR_WHICHDATERESTORE the $folder ?")
 				select sqlfile in ${sqlfiles[@]}
 				do
 					mysql -e "DROP DATABASE $folder;"
@@ -223,26 +206,26 @@ restore_database() {
 					ret=$?
 
 					if [ "$ret" = "0" ]; then
-					    say "Geri Dönüş Başarılı"
+					    say "$STR_RESTORESUCCESS"
 					    break
 					else
-					    say hata "Geri dönüş başarısız oldu (mysql ile alakalı)"
+					    say hata "$STR_RESTOREFAIL $STR_RELATEDMYSQL"
 					fi
 
 				done
 			else 
-				say hata "Klasör Bulunamadı!"
+				say hata "$STR_FOLDERNOTFOUND"
 			fi
 
 			break
 		else
-			say hata "İyi oku rakamları!"
+			say hata "$STR_INVALIDSELECTION"
 		fi
 	done
 }
 
 backup_www() {
-	PS3=$(say soru "Hangi Kullanıcı Yedeklenecek?")
+	PS3=$(say soru "$STR_WHICHUSERBACKUP")
 	select opt in $(lsfile /var/cpanel/users system)
 	do
 		if (isfolder "/home/$opt/public_html" == 1);then 
@@ -260,13 +243,13 @@ backup_www() {
 			
 			ret=$?
 			if [ "$ret" = "0" ]; then
-			    say "Yedekleme Başarılı"
+			    say "$STR_BACKUPSUCCESS"
 			    break
 			else
-			    say hata "Yedekleme başarısız oldu"
+			    say hata "$STR_BACKUPFAIL"
 			fi
 		else
-			say "yok böyle bir klasör"
+			say "$STR_FOLDERNOTFOUND"
 		fi
 
 	done
@@ -274,13 +257,13 @@ backup_www() {
 
 restore_www() {
 	clear
-	PS3=$(say soru "Hangi Site Geri Alınacak?")
+	PS3=$(say soru "$STR_WHICHUSERRESTORE")
 	select folder in $(lsfolder "$fastbackfolder/www")
 	do
 		if [[ $folder ]]; then
 			# SQL Klasöründe bu database'in klasörü yoksa açalım
 			if isfolder "$fastbackfolder/www/$folder";then 
-				PS3=$(say soru "$folder kullanıcısının www klasörü hangi zamana geri dönsün?")
+				PS3=$(say soru "$STR_WHICHDATERESTORE the $folder ?")
 				select selected_folder in $(lsfolder "$fastbackfolder/www/$folder/")
 				do
 
@@ -298,19 +281,19 @@ restore_www() {
 					
 					ret=$?
 					if [ "$ret" = "0" ]; then
-					    say "Geri Alma Başarılı"
+					    say "$STR_RESTORESUCCESS"
 					    break
 					else
-					    say hata "Geri Alma başarısız oldu"
+					    say hata "$STR_RESTOREFAIL"
 					fi
 				done
 			else 
-				say hata "Klasör Bulunamadı!"
+				say hata "$STR_FOLDERNOTFOUND"
 			fi
 
 			break
 		else
-			say hata "İyi oku rakamları!"
+			say hata "$STR_INVALIDSELECTION"
 		fi
 	done
 }
@@ -326,27 +309,27 @@ backup() {
 				backup_database $@
 			;;
 		   *)
-			  say hata "Yok böyle bir komut!"
+			  say hata "$STR_INVALIDCOMMAND"
 			;;
 		esac
 		return
 	fi
 
 	clear
-	PS3=$(say soru "Neyi Yedekliyoruz?")
-	select opt in "WWW klasörünü yedekleyeceğim" "Veritabanını yedekleyeceğim"
+	PS3=$(say soru "$STR_BACKUPWHAT")
+	select opt in "$STR_WWWFOLDER" "$STR_DATABASE"
 	do
 		case $opt in
-		   "WWW klasörünü yedekleyeceğim") 
+		   "$STR_WWWFOLDER") 
 				backup www
 				break
 			;;
-		   "Veritabanını yedekleyeceğim")
+		   "$STR_DATABASE")
 				backup db
 				break
 			;;
 		   *)
-				say hata "Yok böyle bir komut!"
+				say hata "$STR_INVALIDCOMMAND"
 			;;
 		esac
 	done
@@ -366,26 +349,26 @@ restore() {
 				break
 			;;
 		   *)
-				say hata "Yok böyle bir komut!"
+				say hata "$STR_INVALIDCOMMAND"
 			;;
 		esac
 	fi
 
 	clear
-	PS3=$(say soru "Neyi Geri Alalım?")
-	select opt in "WWW klasörünü geri alalım" "Veritabanını geri alalım"
+	PS3=$(say soru "$STR_RESTOREWHAT")
+	select opt in "$STR_WWWFOLDER" "$STR_DATABASE"
 	do
 		case $opt in
-		   "WWW klasörünü geri alalım")
+		   "$STR_WWWFOLDER")
 				restore www
 				break
 			;;
-		   "Veritabanını geri alalım")
+		   "$STR_DATABASE")
 				restore db
 				break
 			;;
 		   *)
-			  say hata "Yok böyle bir komut!"
+			  say hata "$STR_INVALIDCOMMAND"
 			;;
 		esac
 	done
@@ -397,20 +380,20 @@ if [[ $1 ]]; then
 else 
 
 	clear
-	PS3=$(say soru "İşlem Nedir?")
-	select opt in "Yedekleme (Backup)" "Geri Yükleme (Restore)"
+	PS3=$(say soru "$STR_SELECTOPERATION")
+	select opt in "$STR_BACKUP" "$STR_RESTORE"
 	do
 		case $opt in
-		   "Yedekleme (Backup)")
+		   "$STR_BACKUP")
 				backup
 				break
 			;;
-		   "Geri Yükleme (Restore)")
+		   "$STR_RESTORE")
 				restore
 				break
 			;;
 		   *)
-			  say hata "Yok böyle bir komut!"
+			  say hata "$STR_INVALIDCOMMAND"
 			;;
 		esac
 	done

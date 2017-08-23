@@ -1,14 +1,14 @@
 # fastback
-Sunucular için hızlıca yedekleme ve geri alma programı
+Fast backup and restore utility for cpanel managed web servers
 
-# Ekran Görüntüleri
+# Screenshots
 ![step 1](screenshots/1.png "Screenshots Step1")
 ![step 2](screenshots/2.png "Screenshots Step2")
 ![step 3](screenshots/3.png "Screenshots Step3")
 
-# Not: Şu An Geliştirme Aşamasındadır Kullanmayın Takip Edin
+# Note: fastback is experimental for now, so don't use it for real purposes
 
-# Kurulum
+# Installation
 ´´´
 mv -f fastback.sh /usr/local/bin
 alias fastback="fastback.sh"
