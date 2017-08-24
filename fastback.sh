@@ -8,17 +8,10 @@ fastbackfolder="/fastback"
 mysql_query_prefix="" #server
 
 source variables.txt
-mkdir $fastbackfolder
-mkdir $fastbackfolder/sql
-mkdir $fastbackfolder/www
-mkdir $fastbackfolder/trash
-mkdir $fastbackfolder/transfer
-
-if !(isfolder "/tmp/fastback");then 
-	mkdir /tmp/fastback
-fi
 
 tmpfolder="/tmp/fastback"
+
+# GEREKLİ FONKSİYONLAR
 
 now() {
 	echo $(date +"%d-%m-%Y__%H-%M-%S")
@@ -118,23 +111,6 @@ lsfile() {
 	echo ${file[@]}
 }
 
-for line in $(mysql $mysql_query_prefix -e 'show databases;'); do 
-	blocked=false
-	for i in "${blacklist[@]}"; do
-		if [[ $i == $line ]]; then
-			blocked=true
-		fi
-	done
-
-	if [[ $blocked == false ]]; then
-		databases+=("$line")
-	fi
-done
-
-clear
-
-# echo ${databases[@]};
-
 say() {
 	case $1 in
 		"hata")
@@ -148,6 +124,50 @@ say() {
 		;;
 	esac	
 }
+
+# GEREKLİ KLASÖRLER AÇILIYOR...
+
+if !(isfolder "/var/cpanel/users");then 
+	say hata "$STR_CPANELFAIL"
+	exit
+fi
+
+if !(isfolder "$fastbackfolder");then 
+	mkdir $fastbackfolder
+fi
+
+if !(isfolder "$fastbackfolder/sql");then 
+	mkdir $fastbackfolder/sql
+fi
+
+if !(isfolder "$fastbackfolder/www");then 
+	mkdir $fastbackfolder/www
+fi
+
+if !(isfolder "$fastbackfolder/trash");then 
+	mkdir $fastbackfolder/trash
+fi
+
+if !(isfolder "$fastbackfolder/transfer");then 
+	mkdir $fastbackfolder/transfer
+fi
+
+if !(isfolder "/tmp/fastback");then 
+	mkdir /tmp/fastback
+fi
+
+for line in $(mysql $mysql_query_prefix -e 'show databases;'); do 
+	blocked=false
+	for i in "${blacklist[@]}"; do
+		if [[ $i == $line ]]; then
+			blocked=true
+		fi
+	done
+
+	if [[ $blocked == false ]]; then
+		databases+=("$line")
+	fi
+done
 
 backup_database() {
 	clear

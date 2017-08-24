@@ -1,3 +1,4 @@
+STR_CPANELFAIL="Sorry only works on cPanel installed systems"
 STR_SELECTOPERATION="Select the operation:"
 STR_BACKUP="Backup"
 STR_RESTORE="Restore"
