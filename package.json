@@ -4,8 +4,7 @@
   "description": "Sunucu yedekleme ve gerialma scripti",
   "main": "fastback.sh",
   "bin": {
-    "fastback": "fastback.sh",
-    "_fastback": "variables.txt"
+    "fastback": "fastback.sh"
   },
   "repository": {
     "type": "git",
