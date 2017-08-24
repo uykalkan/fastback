@@ -172,29 +172,12 @@ if !(isfolder "/var/cpanel/users");then
 	exit
 fi
 
-if !(isfolder "$fastbackfolder");then 
-	mkdir $fastbackfolder
-fi
-
-if !(isfolder "$fastbackfolder/sql");then 
-	mkdir $fastbackfolder/sql
-fi
-
-if !(isfolder "$fastbackfolder/www");then 
-	mkdir $fastbackfolder/www
-fi
-
-if !(isfolder "$fastbackfolder/trash");then 
-	mkdir $fastbackfolder/trash
-fi
-
-if !(isfolder "$fastbackfolder/transfer");then 
-	mkdir $fastbackfolder/transfer
-fi
-
-if !(isfolder "/tmp/fastback");then 
-	mkdir /tmp/fastback
-fi
+mkdir -p $fastbackfolder
+mkdir -p $fastbackfolder/sql
+mkdir -p $fastbackfolder/www
+mkdir -p $fastbackfolder/trash
+mkdir -p $fastbackfolder/transfer
+mkdir -p /tmp/fastback
 
 for line in $(mysql $mysql_query_prefix -e 'show databases;'); do 
 	blocked=false
@@ -219,7 +202,7 @@ backup_database() {
 			if isfolder "$fastbackfolder/sql/$opt";then 
 				echo # !isfolder tarzında kullanıma geçilecek ileride
 			else 
-				mkdir "$fastbackfolder/sql/$opt"
+				mkdir -p "$fastbackfolder/sql/$opt"
 			fi
 
 			filename="$fastbackfolder/sql/$opt/$(now).sql"
@@ -292,11 +275,11 @@ backup_www() {
 			foldername=$(now)
 			folderpath=$tmpfolder/$opt/$foldername
 
-			mkdir $tmpfolder/$opt
-			mkdir $fastbackfolder/www/$opt
+			mkdir -p $tmpfolder/$opt
+			mkdir -p $fastbackfolder/www/$opt
 
-			mkdir $tmpfolder/$opt/$foldername
-			mkdir $fastbackfolder/www/$opt/$foldername
+			mkdir -p $tmpfolder/$opt/$foldername
+			mkdir -p $fastbackfolder/www/$opt/$foldername
 
 			rsync -avz /home/$opt/public_html $folderpath
 			mv $folderpath $fastbackfolder/www/$opt
@@ -327,13 +310,13 @@ restore_www() {
 				select selected_folder in $(lsfolder "$fastbackfolder/www/$folder/")
 				do
 
-					#mkdir $tmpfolder/transfer/$selected_folder
+					#mkdir -p $tmpfolder/transfer/$selected_folder
 					rsync -avz $fastbackfolder/www/$folder/$selected_folder $fastbackfolder/transfer/					
 
 					# Var olanı silmeyelim çöpe atalım ileride çöpten geri al yapacağız
 					nowtime=$(now)
-					mkdir $fastbackfolder/trash/$folder
-					mkdir $fastbackfolder/trash/$folder/$nowtime
+					mkdir -p $fastbackfolder/trash/$folder
+					mkdir -p $fastbackfolder/trash/$folder/$nowtime
 					mv /home/$folder/public_html $fastbackfolder/trash/$folder/$nowtime/public_html
 
 					mv $fastbackfolder/transfer/$selected_folder/public_html /home/$folder/public_html
